@@ -13,6 +13,8 @@ import com.rtseki.course.repositories.UserRepository;
 import com.rtseki.course.services.exception.DatabaseException;
 import com.rtseki.course.services.exception.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 
@@ -43,9 +45,13 @@ public class UserService {
 	}
 	
 	public User update(Long id, User user) {
-		User entity = repository.getReferenceById(id);
-		updateDate(entity, user);
-		return repository.save(entity);
+		try {
+			User entity = repository.getReferenceById(id);
+			updateDate(entity, user);
+			return repository.save(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 
 	private void updateDate(User entity, User user) {
